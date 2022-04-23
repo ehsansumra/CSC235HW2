@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="index.css">
+    <title>Yahtzee</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h1>Yahtzee</h1>
+        </div>
+        <div class="mainContent">
+            <div id="diceBox" class="diceBox">
+                <button id="die1" class="die" onclick="game.blockDie(0)"></button>
+                <button id="die2" class="die" onclick="game.blockDie(1)"></button>
+                <button id="die3" class="die" onclick="game.blockDie(2)"></button>
+                <button id="die4" class="die" onclick="game.blockDie(3)"></button>
+                <button id="die5" class="die" onclick="game.blockDie(4)"></button>
+            </div>
+            <div class="mainContainer">
+
+                <div class="leftContainer">
+                    <div class="column">
+                        <div class="row">
+                            <p>1's</p>
+                            <button id="ones" class="scoreBox ones" onclick="game.scoreThisCategory(0)"></button>
+                        </div>
+                        <div class="row">
+                            <p>2's</p>
+                            <button id="twos" class="scoreBox twos" onclick="game.scoreThisCategory(1)"></button>
+                        </div>
+                        <div class="row">
+                            <p>3's</p>
+                            <button id="threes" class="scoreBox threes"
+                                onclick="game.scoreThisCategory(2)"></button>
+                        </div>
+                        <div class="row">
+                            <p>4's</p>
+                            <button id="fours" class="scoreBox fours" onclick="game.scoreThisCategory(3)"></button>
+                        </div>
+                        <div class="row">
+                            <p>5's</p>
+                            <button id="fives" class="scoreBox fives" onclick="game.scoreThisCategory(4)"></button>
+                        </div>
+                        <div class="row">
+                            <p>6's</p>
+                            <button id="sixes" class="scoreBox sixes" onclick="game.scoreThisCategory(5)"></button>
+                        </div>
+                        <div class="row">
+                            <p>3 of a kind</p>
+                            <button id="threeOfAKind" class="scoreBox threeOfAKind"
+                                onclick="game.scoreThisCategory(6)"></button>
+                        </div>
+                        <div class="row">
+                            <p>4 of a kind</p>
+                            <button id="fourOfAKind" class="scoreBox fourOfAKind"
+                                onclick="game.scoreThisCategory(7)"></button>
+                        </div>
+                        <div class="row">
+                            <p>Yahtzee</p>
+                            <button id="yahtzee" class="scoreBox yahtzee"
+                                onclick="game.scoreThisCategory(8)"></button>
+                        </div>
+                        <div class="row">
+                            <p>Total</p>
+                            <button id="total" class="scoreBox total"></button>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="rightContainer">
+                    <div class="rollContainer">
+                        <button class="roll" onclick="game.rollHandler()">
+                            <p>Roll</p>
+                        </button>
+                    </div>
+                    <div class="rollContainer">
+                        <button class="newGame" onclick="game.newGame()">
+                            <p>New game</p>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        //Each die on screen is represented by this Die object.
+        //This object holds the value of the die, once rolled
+        //It holds the reference to the html element that represents the die on screen. These would be the button tags with IDs "die1", "die2".. etc.
+        //It holds a boolean field blocked that is used to determine if the die is blocked by the user
+        //The display method sets the background to a specific image 
+        class Die {
+            constructor(index, value) {
+                this.value = value;
+                this.element = document.getElementById("die" + (index + 1));
+                this.blocked = false;
+            }
+
+            setValue(value) {
+                this.value = value;
+            }
+
+            toggleBlock() {
+                this.blocked = !this.blocked
+            }
+
+            display() {
+                if (this.blocked) {
+                    this.element.style.background = "url(../pix/diceX" + this.value + ".gif) no-repeat";
+                    this.element.style.backgroundSize = "100%";
+                } else {
+                    this.element.style.background = "url(../pix/dice" + this.value + ".gif) no-repeat";
+                    this.element.style.backgroundSize = "100%";
+                }
+            }
+        }
+
+        //This class manages the game logic for Yahtzee
+        //this.dice is an array of Die objects
+        //this.scored holds of array of objects in the format:
+        /*
+        {
+            score: int, refers to value of the score
+            isScored: boolean, toggled true if the user has scored this category
+            element: html element, refers to the specific score box element on the page.
+        },
+
+        this.rollCount holds the number of rolls, which cannot exceed 3.
+        this.round holds the current round number.
+
+
+        */
+
+        class Game {
+            constructor() {
+                this.dice = this.createDice();
+                this.scored = [
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("ones")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("twos")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("threes")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("fours")
+                    },
+                    {
+                        value: null,
+                        isScored: false,
+                        element: document.getElementById("fives")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("sixes")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("threeOfAKind")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("fourOfAKind")
+                    },
+                    {
+                        score: null,
+                        isScored: false,
+                        element: document.getElementById("yahtzee")
+                    },
+                ]
+                this.total = document.getElementById("total")
+                this.rollCount = 0;
+                this.round = 1;
+
+                this.updateScores();
+            }
+
+            /*
+            Creates an array of five Die objects.
+            */
+            createDice() {
+                let dice = [];
+                for (let i = 0; i < 5; i++) {
+                    dice.push(new Die(i, null));
+                }
+                return dice;
+            }
+
+            /*
+            Generates a random integer from 1 to 6 and returns it
+            */
+            randomInt() {
+                minimum = Math.ceil(1);
+                maximum = Math.floor(6);
+                return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+            }
+
+            /*
+            Sets every dice to a random int. Only called for the first roll of the round.
+            After rolling, it updates the display by calling the updateDisplay method
+            */
+            roll() {
+                for (let i = 0; i < 5; i++) {
+                    let random = this.randomInt();
+                    this.dice[i].setValue(random)
+                }
+                this.updateDisplay()
+            }
+
+
+            /*
+            Sets every dice to random int. If the die is blocked by the user, it will not set it.
+            Calls updateDisplay after rolling
+            */
+            reroll() {
+                for (let i = 0; i < 5; i++) {
+                    if (!this.dice[i].blocked) {
+                        this.dice[i].value = this.randomInt(1, 6);
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            /*
+            Enter an integer x, return true if there is x number of die of the same value
+            return false otherwise
+            Ex. this.xOfAKind(5) would return true if you had Yahtzee, all 5 die the same value.
+            */
+            xOfAKind(x) {
+                for (let i = 1; i < 7; i++) {
+                    let matchNum = i;
+                    let count = 0;
+                    for (let j = 0; j < 5; j++) {
+                        if (this.dice[j].value == matchNum) count++;
+                    }
+                    if (count == x) return true;
+                }
+                return false;
+            }
+
+            /*
+            Sets the upper scores (3 and 4 of a kind, yahtzee)
+            parameter x is used to call xOfAKind
+            parameter index is used to refer to the score category in this.scored
+            Ex. this.scored[6] is 3 of a kind, this.scored[7] is 4 of a kind
+            Updates the innerHTML of the associated html element.
+            Stores the value of the score in the score field.
+            Ex. if you wanted to store 25 in the Yahtzee category: this.scored[8].score = 25.
+            */
+            upperScoreCalc(x, index) {
+                let score = 0;
+                if (this.xOfAKind(x)) score = this.sum();
+                this.scored[index].element.innerHTML = score;
+                this.scored[index].score = score;
+            }
+
+            /*
+            Calls upperScoreCalc depending on the index parameter
+            Ex. this.upperScoreHandler(6) will call this.upperScoreCalc(3, 6)
+            -which means it will score the 3 of a kind category.
+            */
+            upperScoreHandler(index) {
+                //Three of a Kind
+                if (index == 6) {
+                    this.upperScoreCalc(3, index);
+                }
+
+                //Four of a Kind
+                if (index == 7) {
+                    this.upperScoreCalc(4, index);
+                }
+
+                //Yahtzee
+                if (index == 8) {
+                    this.upperScoreCalc(5, index);
+                }
+            }
+
+            /*
+            Handles the scoring based on the index i passed in
+            Parameter i refers to the index of the this.scored array.
+            if i < 6 (lower scores) then it will call countMatching(i+1)
+            Ex. i == 0, this.countMatching(0+1) will count the matching 1s to score the 1s category
+
+            if i >= 6, call upperScoreHandler
+            */
+            calcScore(i) {
+                if (this.scored[i].isScored) return;
+                
+                if (i < 6) {
+                    let score = this.countMatching(i+1);
+                    this.scored[i].score = score;
+                    this.scored[i].element.innerHTML = score;
+                } else {
+                    this.upperScoreHandler(i);
+                }
+            }
+
+            /*
+            Calls calcScore for every score category.
+            */
+            updateScores() {
+                for (let i = 0; i < this.scored.length; i++) {
+                    this.calcScore(i);
+                }
+            }
+
+            /*
+            Called when the user clicks the roll button
+            Guard clause prevents the number of rolls from exceeding 3
+            Calls roll if it is the first roll, calls reroll if it is not the first roll
+            Call updateScores after each roll
+            increment the rollCount
+            */
+            rollHandler() {
+                if (this.rollCount >= 3) return;
+
+                if (this.rollCount == 0) {
+                    this.roll()
+                } else {
+                    this.reroll()
+                }
+
+                this.updateScores();
+                this.rollCount++
+            }
+
+            /*
+            Calculates the total of all the scores amd makes the text visible on screen in the Total box.
+            */
+            updateTotal() {
+                let sum = 0;
+                for(let i = 0; i<this.scored.length; i++) {
+                    sum += this.scored[i].score;
+                }
+                this.total.innerHTML = sum;
+                this.total.style.fontSize = "12px";
+            }
+
+            /*
+            Called every time the user scores a category.
+            If it is the final round (round 9), call updateTotal
+
+            increment the round
+            Unblock all the dice and set them to 0
+            Set rollCount to 0 and update the display
+            */
+            nextRound() {
+                console.log(this.round);
+                if (this.round >= 9) {
+                    this.updateTotal();
+                    return;
+                }
+                this.round++
+
+                for (let i = 0; i < 5; i++) {
+                    this.dice[i].value = 0;
+                    this.dice[i].blocked = false;
+                }
+
+                this.rollCount = 0;
+                this.updateDisplay();
+            }
+
+            /*
+            Calculate the lower scores.
+            Ex. countMatching(2) will count all the 2s and return the score, which is the sum of all 2s.
+            */
+            countMatching(num) {
+                let numCount = 0;
+                for (let i = 0; i < 5; i++) {
+                    if (this.dice[i].value == num) numCount += num;
+                }
+                return numCount;
+            }
+
+            /*
+            Called whenever a user clicks a score box to score it
+            Guard clause prevents the user from scoring before rolling.
+
+            Once scored, the isScored key in the scored array is set to true, and the font size is made visible.
+            Call nextRound()
+            */
+            scoreThisCategory(category) {
+                if (this.rollCount == 0) return;
+
+                this.scored[category].isScored = true
+                this.scored[category].element.style.fontSize = "12px";
+                this.nextRound();
+            }
+
+            /*
+            Calculate and return the sum of all 5 dice.
+            */
+            sum() {
+                let sum = 0;
+                for (let i = 0; i < 5; i++) {
+                    sum += this.dice[i].value
+                }
+                return sum
+            }
+
+            /
+            updateDisplay() {
+                for (let i = 0; i < 5; i++) {
+                    this.dice[i].display();
+                }
+            }
+
+            //
+            blockDie(diceNum) {
+                if (this.rollCount == 0) return;
+
+                this.dice[diceNum].toggleBlock();
+                this.dice[diceNum].display();
+            }
+
+            //Reset the values of the dice and scored objects
+            //Reset display and fields
+            //Prompting a refresh would take less code, but this reset allows
+            //the insertion of this game into another html page without refreshing the entire page.
+            newGame() {
+                console.log("test")
+                for (let i = 0; i < 5; i++) {
+                    this.dice[i].value = 0;
+                    this.dice[i].blocked = false;
+                }
+
+                for (let i = 0; i < this.scored.length; i++) {
+                    this.scored[i].score = null;
+                    this.scored[i].isScored = false;
+                    this.scored[i].element.innerHTML = null;
+                    this.scored[i].element.style.fontSize = "0px";
+                }
+
+                this.total.innerHTML = null;
+                this.total.style.fontSize = "0px";
+                this.round = 1;
+                this.rollCount = 0;
+                this.updateDisplay();
+            }
+            //displaying dice images
+        }
+
+        const game = new Game();
+
+
+    </script>
+
+</body>
+
+</html>
