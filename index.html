@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- 	Name: 	Ehsan Sumra
+	Course: 	235.01
+	HomeWork: 	#2
+	Git-Hub: 	https://github.com/ehsansumra/CSC235HW2
+--> 	
+
 <head>
     <link rel="stylesheet" href="index.css">
     <title>Yahtzee</title>
@@ -132,8 +138,6 @@
 
         this.rollCount holds the number of rolls, which cannot exceed 3.
         this.round holds the current round number.
-
-
         */
 
         class Game {
@@ -208,8 +212,8 @@
             Generates a random integer from 1 to 6 and returns it
             */
             randomInt() {
-                minimum = Math.ceil(1);
-                maximum = Math.floor(6);
+                let minimum = Math.ceil(1);
+                let maximum = Math.floor(6);
                 return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
             }
 
@@ -364,7 +368,6 @@
             Set rollCount to 0 and update the display
             */
             nextRound() {
-                console.log(this.round);
                 if (this.round >= 9) {
                     this.updateTotal();
                     return;
@@ -418,14 +421,20 @@
                 return sum
             }
 
-            /
+            /*
+            Calls the display method on all Die objects in the this.dice array
+            This method is used to update the display of the dice every time the user rolls.
+            */
             updateDisplay() {
                 for (let i = 0; i < 5; i++) {
                     this.dice[i].display();
                 }
             }
 
-            //
+            //Pass in the index of the specific Die in this.dice
+            //Call toggleBlock on the die, then call updateDisplay
+            //This will change the image of the Die to purple and prevent it from being rolled.
+            //Also allows the user to unblock the Die.
             blockDie(diceNum) {
                 if (this.rollCount == 0) return;
 
@@ -438,7 +447,6 @@
             //Prompting a refresh would take less code, but this reset allows
             //the insertion of this game into another html page without refreshing the entire page.
             newGame() {
-                console.log("test")
                 for (let i = 0; i < 5; i++) {
                     this.dice[i].value = 0;
                     this.dice[i].blocked = false;
