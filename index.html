@@ -380,6 +380,7 @@
                 }
 
                 this.rollCount = 0;
+                this.scoreClear();
                 this.updateDisplay();
             }
 
@@ -403,7 +404,7 @@
             Call nextRound()
             */
             scoreThisCategory(category) {
-                if (this.rollCount == 0) return;
+                if (this.rollCount == 0 || this.scored[category].isScored) return;
 
                 this.scored[category].isScored = true
                 this.scored[category].element.style.fontSize = "12px";
@@ -442,30 +443,24 @@
                 this.dice[diceNum].display();
             }
 
-            //Reset the values of the dice and scored objects
-            //Reset display and fields
-            //Prompting a refresh would take less code, but this reset allows
-            //the insertion of this game into another html page without refreshing the entire page.
+            //Called when clicking New Game button. Refreshes the page.
             newGame() {
-                for (let i = 0; i < 5; i++) {
-                    this.dice[i].value = 0;
-                    this.dice[i].blocked = false;
-                }
-
-                for (let i = 0; i < this.scored.length; i++) {
-                    this.scored[i].score = null;
-                    this.scored[i].isScored = false;
-                    this.scored[i].element.innerHTML = null;
-                    this.scored[i].element.style.fontSize = "0px";
-                }
-
-                this.total.innerHTML = null;
-                this.total.style.fontSize = "0px";
-                this.round = 1;
-                this.rollCount = 0;
-                this.updateDisplay();
+                location.reload();
             }
-            //displaying dice images
+
+            /*
+            Created this method to fix an issue where the unscored categories did not reset after each roll.
+            Called in nextRound()
+            */
+            scoreClear() {
+                 for (let i = 0; i < this.scored.length; i++) {
+                     if (!this.scored[i].isScored) {
+                         this.scored[i].score = 0;
+                         this.scored[i].element.innerHTML = 0;
+                         console.log("here")
+                     }
+                 }
+            }
         }
 
         const game = new Game();

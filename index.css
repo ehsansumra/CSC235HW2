@@ -91,9 +91,7 @@ p {
     font-size: 12px;
 }
 
-.scoreBox:hover {
-    font-size: 12px;
-}
+
 
 .rollContainer {
     display: flex;
@@ -136,4 +134,8 @@ button {
 
 p {
     margin-right: 2px;
+}
+
+.scoreBox:hover {
+    font-size: 12px;
 }
