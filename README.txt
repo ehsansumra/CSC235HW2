@@ -1,0 +1,1 @@
+This project was developed using FireFox. As such, it looks slightly different when you launch it in Google Chrome.
