@@ -369,6 +369,7 @@
             */
             nextRound() {
                 if (this.round >= 9) {
+                    this.rollCount = 3;
                     this.updateTotal();
                     return;
                 }
